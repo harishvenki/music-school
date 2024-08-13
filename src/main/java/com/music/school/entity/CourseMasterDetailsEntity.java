@@ -1,5 +1,6 @@
 package com.music.school.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -21,15 +22,19 @@ public class CourseMasterDetailsEntity extends Audit {
     @Column(name = "name", nullable = false)
     private String name;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "course")
     private List<BatchMasterDetailsEntity> batches;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "course")
     private List<StudentMasterDetailsEntity> students;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "course")
     private List<TeacherMasterDetailsEntity> teachers;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "course")
     private List<CompetitionMasterDetailsEntity> competitions;
 }

@@ -1,15 +1,16 @@
 package com.music.school.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "student_master_details")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "student_master_details")
 public class StudentMasterDetailsEntity extends Audit {
 
     @Id
@@ -35,10 +36,16 @@ public class StudentMasterDetailsEntity extends Audit {
     @Column(name = "status", nullable = false)
     private Character status;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "course_id", nullable = false)
     private CourseMasterDetailsEntity course;
 
+    @JsonIgnore
+    @Column(name= "user_id", nullable = false)
+    private Integer userId;
+
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "batch_id", nullable = false)
     private BatchMasterDetailsEntity batch;

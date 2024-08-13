@@ -1,18 +1,20 @@
 package com.music.school.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.Date;
 
 @Entity
 @Table(name = "competition_master_details")
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class CompetitionMasterDetailsEntity extends Audit {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,10 +30,6 @@ public class CompetitionMasterDetailsEntity extends Audit {
     @Column(name = "end_date", nullable = false)
     private Date endDate;
 
-    @ManyToOne
-    @JoinColumn(name = "course_id", nullable = false)
-    private CourseMasterDetailsEntity course;
-
     @Column(name = "audio_files")
     private String audioFiles;
 
@@ -45,5 +43,10 @@ public class CompetitionMasterDetailsEntity extends Audit {
     private String image;
 
     @Column(name = "status", nullable = false)
-    private Character status;
+    private String status;
+
+    @JsonIgnore
+    @ManyToOne
+    @JoinColumn(name = "course_id", nullable = false)
+    private CourseMasterDetailsEntity course;
 }

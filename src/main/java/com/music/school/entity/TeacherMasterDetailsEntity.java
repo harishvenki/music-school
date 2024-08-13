@@ -1,5 +1,6 @@
 package com.music.school.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -39,10 +40,16 @@ public class TeacherMasterDetailsEntity extends Audit {
     @Column(name = "status", nullable = false)
     private Boolean status;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "course_id", nullable = false)
     private CourseMasterDetailsEntity course;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "teacher")
     private List<BatchMasterDetailsEntity> batches;
+
+    @JsonIgnore
+    @Column(name= "user_id", nullable = false)
+    private Integer userId;
 }

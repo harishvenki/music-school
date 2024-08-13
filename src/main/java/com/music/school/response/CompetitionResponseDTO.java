@@ -32,6 +32,7 @@ public class CompetitionResponseDTO {
         private String videoFiles;
         private String descriptionText;
         private String image;
-        private Character status;
+        private String status;
+        private Boolean isUserEnrolled;
     }
 }
