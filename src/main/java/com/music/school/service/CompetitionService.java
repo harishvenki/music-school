@@ -20,4 +20,6 @@ public interface CompetitionService {
     CompetitionDetailsEntity getCompetitionDetailsByCompetitionIdAndStudentId(Integer competitionId, Integer studentId);
 
     CompetitionDetailsEntity createCompetitionDetails(CompetitionDetailsDTO competitionDetailsDTO);
+
+    CompetitionDetailsEntity updateCompetitionDetails(CompetitionDetailsDTO competitionDetailsDTO);
 }

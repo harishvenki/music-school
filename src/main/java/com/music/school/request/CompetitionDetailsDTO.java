@@ -22,4 +22,6 @@ public class CompetitionDetailsDTO {
     private String teacherComments;
     private Integer evaluatorId;
     private Integer prizeId;
+    private Integer competitionDetailsId;
+    private Integer teacherId;
 }

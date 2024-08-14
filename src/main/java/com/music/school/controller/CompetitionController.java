@@ -89,4 +89,21 @@ public class CompetitionController {
                     .body(errorResponse);
         }
     }
+
+    @PutMapping("/details")
+    public ResponseEntity<?> updateCompetitionDetails(@RequestBody CompetitionDetailsDTO competitionDetailsDTO) {
+        try {
+            CompetitionDetailsEntity competitionDetailsEntity = competitionService.updateCompetitionDetails(competitionDetailsDTO);
+            return ResponseEntity.status(HttpStatus.OK).body(competitionDetailsEntity);
+        } catch (ResourceNotFoundException e) {
+            logger.error("ResourceNotFoundException occurred while updating competition details, {}", e.getMessage(), e);
+            ErrorResponseDTO errorResponse = new ErrorResponseDTO(e.getMessage(), HttpStatus.NOT_FOUND.value());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            logger.error("Exception occurred while updating competition details, {}", e.getMessage(), e);
+            ErrorResponseDTO errorResponse = new ErrorResponseDTO("Error updating competition details: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(errorResponse);
+        }
+    }
 }

@@ -8,4 +8,8 @@ import java.util.Optional;
 
 public interface CompetitionDetailsRepository extends CrudRepository<CompetitionDetailsEntity, Integer> {
     Optional<CompetitionDetailsEntity> findByCompetition_CompetitionIdAndStudent_StudentId(Integer competitionId, Integer studentId);
+
+    List<CompetitionDetailsEntity> findByCompetition_CompetitionId(Integer competitionId);
+
+    CompetitionDetailsEntity findByCompetitionDetailsId(Integer competitionDetailsId);
 }

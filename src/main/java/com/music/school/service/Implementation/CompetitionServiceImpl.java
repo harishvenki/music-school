@@ -72,6 +72,17 @@ public class CompetitionServiceImpl implements CompetitionService {
 
             competitionResponseDTO.getCompetitions().stream().forEach(competition -> {
                 Optional<CompetitionDetailsEntity> competitionDetailsEntity =  competitionDetailsRepository.findByCompetition_CompetitionIdAndStudent_StudentId(competition.getCompetitionId(), studentId);
+                List<CompetitionDetailsEntity> competitionDetailsEntities = competitionDetailsRepository.findByCompetition_CompetitionId(competition.getCompetitionId());
+                List<CompetitionResponseDTO.PrizeDetails> prizeDetails = competitionDetailsEntities.stream().filter(competitionDetails -> {
+                    return Objects.nonNull(competitionDetails.getPrize());
+                }).map(competitionDetails -> {
+                    return CompetitionResponseDTO.PrizeDetails.builder()
+                            .prizeId(competitionDetails.getPrize().getPrizeId())
+                            .name(competitionDetails.getPrize().getName())
+                            .studentId(competitionDetails.getStudent().getStudentId())
+                            .build();
+                }).toList();
+                competition.setPrize(prizeDetails);
                 competition.setIsUserEnrolled(competitionDetailsEntity.isPresent());
             });
         } catch (Exception e) {
@@ -170,5 +181,25 @@ public class CompetitionServiceImpl implements CompetitionService {
                 .build();
 
         return competitionDetailsRepository.save(competitionDetailsEntity);
+    }
+
+
+    @Transactional
+    public CompetitionDetailsEntity updateCompetitionDetails(CompetitionDetailsDTO competitionDetailsDTO) {
+        CompetitionDetailsEntity competitionDetailsEntity =  competitionDetailsRepository.findByCompetitionDetailsId(competitionDetailsDTO.getCompetitionDetailsId());
+        if(Objects.nonNull(competitionDetailsEntity)){
+            if(Objects.nonNull(competitionDetailsDTO.getTeacherId())) competitionDetailsEntity.setEvaluatorId(competitionDetailsDTO.getTeacherId());
+            if(Objects.nonNull(competitionDetailsDTO.getTeacherComments())) competitionDetailsEntity.setTeacherComments(competitionDetailsDTO.getTeacherComments());
+            if(Objects.nonNull(competitionDetailsDTO.getPrizeId())) {
+                PrizeMasterDetailsEntity prizeMasterDetailsEntity = prizeMasterDetailsRepository.findByPrizeId(competitionDetailsDTO.getPrizeId());
+                if(Objects.isNull(prizeMasterDetailsEntity)){
+                    throw new DataAccessException("Enter valid prize details!");
+                }
+                competitionDetailsEntity.setPrize(prizeMasterDetailsEntity);
+            }
+            return competitionDetailsRepository.save(competitionDetailsEntity);
+        } else {
+            throw new DataAccessException("Competition details not found for update!");
+        }
     }
 }
