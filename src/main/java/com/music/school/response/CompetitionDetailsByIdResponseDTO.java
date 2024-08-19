@@ -1,6 +1,5 @@
-package com.music.school.request;
+package com.music.school.response;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,20 +8,20 @@ import lombok.NoArgsConstructor;
 import java.util.Date;
 
 @Data
-@JsonIgnoreProperties(ignoreUnknown = true)
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class CompetitionDetailsDTO {
-    private Integer studentId;
+public class CompetitionDetailsByIdResponseDTO {
+    private String batchId;
     private Integer competitionId;
+    private Integer competitionDetailsId;
+    private Integer studentId;
+    private String studentName;
     private String studentFile;
     private String studentComments;
+    private Date studentSubmissionDate;
+    private Integer evaluatorId;
     private String studentGrade;
     private String teacherComments;
-    private Integer evaluatorId;
-    private Integer prizeId;
     private String prizeName;
-    private Integer competitionDetailsId;
-    private Integer teacherId;
 }

@@ -33,25 +33,32 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public LoginResponseDTO login(LoginRequestDTO loginRequest){
+    public LoginResponseDTO login(LoginRequestDTO loginRequest) {
         try {
             UserMasterDetailsEntity userMasterDetailsEntity = userMasterDetailsRepository.findByUserName(loginRequest.getUserName());
             if (Objects.nonNull(userMasterDetailsEntity) && userMasterDetailsEntity.getPassword().equals(loginRequest.getPassword())) {
-                if(userMasterDetailsEntity.getType().equalsIgnoreCase(Constants.STUDENT)){
+                if (userMasterDetailsEntity.getType().equalsIgnoreCase(Constants.STUDENT)) {
                     StudentMasterDetailsEntity studentMasterDetailsEntity = studentMasterDetailsRepository.findByUserId(userMasterDetailsEntity.getUserId());
                     return LoginResponseDTO.builder().role(userMasterDetailsEntity.getType())
+                            .userName(studentMasterDetailsEntity.getFirstName() + " " + studentMasterDetailsEntity.getLastName())
                             .message("Login successful").token("dummy-token")
                             .studentId(studentMasterDetailsEntity.getStudentId()).build();
-                } else if(userMasterDetailsEntity.getType().equalsIgnoreCase(Constants.TEACHER)) {
+                } else if (userMasterDetailsEntity.getType().equalsIgnoreCase(Constants.TEACHER)) {
                     TeacherMasterDetailsEntity teacherMasterDetailsEntity = teacherMasterDetailsRepository.findByUserId(userMasterDetailsEntity.getUserId());
                     return LoginResponseDTO.builder().role(userMasterDetailsEntity.getType())
+                            .userName(teacherMasterDetailsEntity.getFirstName() + " " + teacherMasterDetailsEntity.getLastName())
                             .message("Login successful").token("dummy-token")
                             .teacherId(teacherMasterDetailsEntity.getTeacherId()).build();
+                } else if (userMasterDetailsEntity.getType().equalsIgnoreCase(Constants.ADMIN)) {
+                    return LoginResponseDTO.builder().role(userMasterDetailsEntity.getType())
+                            .userName(userMasterDetailsEntity.getUserName())
+                            .message("Login successful").token("dummy-token")
+                            .build();
                 }
             }
-        } catch (Exception e){
+        } catch (Exception e) {
             logger.error("Exception occurred while logging in user {}", e.getMessage());
         }
-        return new LoginResponseDTO("Invalid username or password",null, null,null, null);
+        return new LoginResponseDTO("Invalid username or password", null, null, null, null, null);
     }
 }

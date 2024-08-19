@@ -24,11 +24,11 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("/login")
-    ResponseEntity<LoginResponseDTO> login(@RequestBody LoginRequestDTO loginRequest){
+    ResponseEntity<LoginResponseDTO> login(@RequestBody LoginRequestDTO loginRequest) {
         logger.info("POST: /api/v1/users request received {}", loginRequest);
         LoginResponseDTO loginResponse = userService.login(loginRequest);
         logger.info("POST: /api/v1/users response {}", loginResponse);
-        if(Objects.nonNull(loginResponse.getToken())){
+        if (Objects.nonNull(loginResponse.getToken())) {
             return ResponseEntity.ok(loginResponse);
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(loginResponse);

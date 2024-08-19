@@ -1,8 +1,6 @@
 package com.music.school.entity;
 
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -36,6 +34,9 @@ public class CompetitionMasterDetailsEntity extends Audit {
     @Column(name = "video_files")
     private String videoFiles;
 
+    @Column(name = "short_description")
+    private String shortDescription;
+
     @Column(name = "description_text")
     private String descriptionText;
 
@@ -45,8 +46,6 @@ public class CompetitionMasterDetailsEntity extends Audit {
     @Column(name = "status", nullable = false)
     private String status;
 
-    @JsonIgnore
-    @ManyToOne
-    @JoinColumn(name = "course_id", nullable = false)
-    private CourseMasterDetailsEntity course;
+    @Column(name = "course_name", nullable = false)
+    private String courseName;
 }

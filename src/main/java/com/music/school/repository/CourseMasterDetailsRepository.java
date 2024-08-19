@@ -6,4 +6,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface CourseMasterDetailsRepository extends CrudRepository<CourseMasterDetailsEntity, Integer> {
+
+    CourseMasterDetailsEntity findByName(String name);
+
 }

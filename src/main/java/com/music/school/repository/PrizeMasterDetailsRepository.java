@@ -8,4 +8,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface PrizeMasterDetailsRepository extends CrudRepository<PrizeMasterDetailsEntity, Integer> {
     PrizeMasterDetailsEntity findByPrizeId(@Param("prizeId") Integer prizeId);
+
+    PrizeMasterDetailsEntity findByName(@Param("prizeName") String prizeName);
 }

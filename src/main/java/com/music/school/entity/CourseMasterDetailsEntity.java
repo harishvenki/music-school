@@ -33,8 +33,4 @@ public class CourseMasterDetailsEntity extends Audit {
     @JsonIgnore
     @OneToMany(mappedBy = "course")
     private List<TeacherMasterDetailsEntity> teachers;
-
-    @JsonIgnore
-    @OneToMany(mappedBy = "course")
-    private List<CompetitionMasterDetailsEntity> competitions;
 }
