@@ -1,6 +1,5 @@
 package com.music.school.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -48,4 +47,10 @@ public class CompetitionMasterDetailsEntity extends Audit {
 
     @Column(name = "course_name", nullable = false)
     private String courseName;
+
+    @Column(name = "tags")
+    private String tags;
+
+    @Column(name = "thumbnail",columnDefinition = "MEDIUMTEXT")
+    private String thumbnail;
 }

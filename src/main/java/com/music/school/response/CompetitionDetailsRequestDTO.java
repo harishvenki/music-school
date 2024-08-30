@@ -1,5 +1,6 @@
 package com.music.school.response;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,6 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class CompetitionDetailsRequestDTO {
     private Integer competitionId;
     private String title;
@@ -24,4 +26,6 @@ public class CompetitionDetailsRequestDTO {
     private String image;
     private String status;
     private List<String> courseList;
+    private String tags;
+    private String thumbnail;
 }

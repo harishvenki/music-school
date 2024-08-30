@@ -50,6 +50,9 @@ public class CompetitionDetailsEntity extends Audit {
     @Column(name = "evaluator_id")
     private Integer evaluatorId;
 
+    @Column(name = "last_updated_by")
+    private Integer lastUpdatedBy;
+
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "prize_id")

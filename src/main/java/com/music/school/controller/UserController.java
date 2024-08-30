@@ -1,6 +1,9 @@
 package com.music.school.controller;
 
+import com.music.school.request.CreateUserRequestDTO;
 import com.music.school.request.LoginRequestDTO;
+import com.music.school.request.ResetPasswordRequestDTO;
+import com.music.school.response.CreateUserResponseDTO;
 import com.music.school.response.LoginResponseDTO;
 import com.music.school.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -34,4 +37,25 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(loginResponse);
     }
 
+    @PostMapping("/create")
+    ResponseEntity<CreateUserResponseDTO> create(@RequestBody CreateUserRequestDTO loginRequest) {
+        logger.info("POST: /api/v1/create request received {}", loginRequest);
+        CreateUserResponseDTO createUserResponseDTO = userService.createUser(loginRequest);
+        logger.info("POST: /api/v1/create response {}", createUserResponseDTO);
+        if (Objects.nonNull(createUserResponseDTO.getUserId())) {
+            return ResponseEntity.status(HttpStatus.CREATED).body(createUserResponseDTO);
+        }
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(createUserResponseDTO);
+    }
+
+    @PostMapping("/reset/password")
+    ResponseEntity<CreateUserResponseDTO> reset(@RequestBody ResetPasswordRequestDTO resetPasswordRequestDTO) {
+        logger.info("POST: /api/v1/reset/password request received {}", resetPasswordRequestDTO);
+        CreateUserResponseDTO resetPasswordResponse = userService.reset(resetPasswordRequestDTO);
+        logger.info("POST: /api/v1/create response {}", resetPasswordResponse);
+        if (Objects.nonNull(resetPasswordResponse.getUserId())) {
+            return ResponseEntity.status(HttpStatus.ACCEPTED).body(resetPasswordResponse);
+        }
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(resetPasswordResponse);
+    }
 }

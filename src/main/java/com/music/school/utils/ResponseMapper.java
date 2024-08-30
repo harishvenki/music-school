@@ -1,15 +1,9 @@
 package com.music.school.utils;
 
-import com.music.school.entity.CompetitionDetailsEntity;
 import com.music.school.entity.CompetitionMasterDetailsEntity;
-import com.music.school.entity.CourseMasterDetailsEntity;
-import com.music.school.repository.CompetitionDetailsRepository;
-import com.music.school.repository.CourseMasterDetailsRepository;
 import com.music.school.response.CompetitionResponseDTO;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
-import java.util.Optional;
 
 public class ResponseMapper {
 
@@ -28,6 +22,8 @@ public class ResponseMapper {
                     .descriptionText(competitionMasterDetailsEntity.getDescriptionText())
                     .image(competitionMasterDetailsEntity.getImage())
                     .status(competitionMasterDetailsEntity.getStatus())
+                    .tags(competitionMasterDetailsEntity.getTags())
+                    .thumbnail(competitionMasterDetailsEntity.getThumbnail())
                     .build();
         }).toList();
         return CompetitionResponseDTO.builder().competitions(competitions).build();

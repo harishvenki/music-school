@@ -6,8 +6,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
-
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 @AllArgsConstructor
@@ -25,4 +23,5 @@ public class CompetitionDetailsDTO {
     private String prizeName;
     private Integer competitionDetailsId;
     private Integer teacherId;
+    private Integer lastUpdatedBy;
 }
