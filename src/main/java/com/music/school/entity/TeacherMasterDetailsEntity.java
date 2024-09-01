@@ -52,4 +52,9 @@ public class TeacherMasterDetailsEntity extends Audit {
     @JsonIgnore
     @Column(name= "user_id", nullable = false)
     private Integer userId;
+
+    @JsonIgnore
+    @ManyToOne
+    @JoinColumn(name = "batch_id", nullable = false)
+    private BatchMasterDetailsEntity batch;
 }

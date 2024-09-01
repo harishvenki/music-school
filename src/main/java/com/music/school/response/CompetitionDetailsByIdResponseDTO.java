@@ -23,6 +23,7 @@ public class CompetitionDetailsByIdResponseDTO {
     private String studentComments;
     private Date studentSubmissionDate;
     private Integer evaluatorId;
+    private String evaluatedBy;
     private String studentGrade;
     private String teacherComments;
     private String prizeName;

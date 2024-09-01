@@ -8,5 +8,7 @@ import java.util.List;
 
 @Repository
 public interface BatchMasterDetailsRepository extends CrudRepository<BatchMasterDetailsEntity, Integer> {
+    BatchMasterDetailsEntity findByName(String name);
+
     List<BatchMasterDetailsEntity> findAllByOrderByNameAsc();
 }

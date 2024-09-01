@@ -20,6 +20,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 @Service
@@ -43,9 +44,11 @@ public class CompetitionServiceImpl implements CompetitionService {
 
     @Autowired
     private CourseMasterDetailsRepository courseMasterDetailsRepository;
+    @Autowired
+    private TeacherMasterDetailsRepository teacherMasterDetailsRepository;
 
     @Override
-    public CompetitionResponseDTO getCompetition(Integer competitionId, String status, Integer studentId) {
+    public CompetitionResponseDTO getCompetition(Integer competitionId, String status, Integer studentId, String type) {
         CompetitionResponseDTO competitionResponseDTO = new CompetitionResponseDTO();
         try {
             if (Objects.nonNull(competitionId)) {
@@ -60,6 +63,8 @@ public class CompetitionServiceImpl implements CompetitionService {
                     competitionMasterDetailsEntity = competitionMasterDetailsRepository.findByStatus(Constants.PRESENT_COMPETITION);
                 } else if (status.equalsIgnoreCase(Constants.FUTURE_COMPETITION)) {
                     competitionMasterDetailsEntity = competitionMasterDetailsRepository.findByStatus(Constants.FUTURE_COMPETITION);
+                } else if (status.equalsIgnoreCase(Constants.CLOSED_COMPETITION) && type.equalsIgnoreCase("TEACHER")) {
+                    competitionMasterDetailsEntity = competitionMasterDetailsRepository.findByStatus(Constants.REVIEW_COMPETITION);
                 } else {
                     competitionMasterDetailsEntity = competitionMasterDetailsRepository.findByStatus(Constants.CLOSED_COMPETITION);
                 }
@@ -127,7 +132,8 @@ public class CompetitionServiceImpl implements CompetitionService {
             if (competition.getImage() != null) competitionMasterDetailsEntity.setImage(competition.getImage());
             if (competition.getStatus() != null) competitionMasterDetailsEntity.setStatus(competition.getStatus());
             if (competition.getTags() != null) competitionMasterDetailsEntity.setTags(competition.getTags());
-            if (competition.getThumbnail() != null) competitionMasterDetailsEntity.setThumbnail(competition.getThumbnail());
+            if (competition.getThumbnail() != null)
+                competitionMasterDetailsEntity.setThumbnail(competition.getThumbnail());
 
 
             if (!competition.getCourseList().isEmpty()) {
@@ -180,7 +186,8 @@ public class CompetitionServiceImpl implements CompetitionService {
                 if (competition.getImage() != null) competitionMasterDetailsEntity.setImage(competition.getImage());
                 if (competition.getStatus() != null) competitionMasterDetailsEntity.setStatus(competition.getStatus());
                 if (competition.getTags() != null) competitionMasterDetailsEntity.setTags(competition.getTags());
-                if (competition.getThumbnail() != null) competitionMasterDetailsEntity.setThumbnail(competition.getThumbnail());
+                if (competition.getThumbnail() != null)
+                    competitionMasterDetailsEntity.setThumbnail(competition.getThumbnail());
 
 //                if (!competition.getCourseList().isEmpty()) {
 //                    List<String> courseNames = competition.getCourseList().stream()
@@ -222,10 +229,31 @@ public class CompetitionServiceImpl implements CompetitionService {
     }
 
     @Override
-    public List<CompetitionDetailsByIdResponseDTO> getCompetitionDetailsByCompetitionId(Integer competitionId) {
+    public List<CompetitionDetailsByIdResponseDTO> getCompetitionDetailsByCompetitionId(Integer competitionId, Integer teacherId, String type) {
         List<CompetitionDetailsEntity> competitionDetailsEntityList = competitionDetailsRepository.findByCompetition_CompetitionId(competitionId);
+
         if (competitionDetailsEntityList.isEmpty())
             return Collections.emptyList();
+
+        if (type != null && type.equalsIgnoreCase("TEACHER")) {
+            TeacherMasterDetailsEntity teacherMasterDetails = teacherMasterDetailsRepository.findByTeacherId(teacherId);
+            List<StudentMasterDetailsEntity> studentMasterDetailsList = studentMasterDetailsRepository.findAllByBatch_BatchId(teacherMasterDetails.getBatch().getBatchId());
+
+            Set<Integer> studentIds = studentMasterDetailsList.stream()
+                    .map(StudentMasterDetailsEntity::getStudentId)
+                    .collect(Collectors.toSet());
+
+            competitionDetailsEntityList = competitionDetailsEntityList.stream()
+                    .filter(competitionDetailsEntity -> studentIds.contains(competitionDetailsEntity.getStudent().getStudentId()))
+                    .toList();
+        }
+
+        List<TeacherMasterDetailsEntity> teachers = (List<TeacherMasterDetailsEntity>) teacherMasterDetailsRepository.findAll();
+        Map<Integer, String> evaluatorNames = teachers.stream()
+                .collect(Collectors.toMap(
+                        TeacherMasterDetailsEntity::getTeacherId,
+                        teacher -> teacher.getFirstName() + " " + teacher.getLastName()
+                ));
 
         return competitionDetailsEntityList.stream().map(competitionDetails -> CompetitionDetailsByIdResponseDTO.builder()
                 .batchId(competitionDetails.getStudent().getBatch().getName())
@@ -237,6 +265,7 @@ public class CompetitionServiceImpl implements CompetitionService {
                 .studentComments(competitionDetails.getStudentComments())
                 .studentSubmissionDate(competitionDetails.getSubmissionDate())
                 .evaluatorId(competitionDetails.getEvaluatorId())
+                .evaluatedBy(evaluatorNames.getOrDefault(competitionDetails.getEvaluatorId(), ""))
                 .studentGrade(competitionDetails.getStudentGrade())
                 .teacherComments(competitionDetails.getTeacherComments())
                 .prizeName(competitionDetails.getPrize() != null ? competitionDetails.getPrize().getName() : "")
@@ -269,9 +298,9 @@ public class CompetitionServiceImpl implements CompetitionService {
                 .studentComments(competitionDetailsDTO.getStudentComments())
                 .submissionDate(new Date())
                 .studentGrade(competitionDetailsDTO.getStudentGrade())
-                .teacherComments(Objects.nonNull(competitionDetailsDTO.getTeacherComments()) ? competitionDetailsDTO.getTeacherComments(): null)
+                .teacherComments(Objects.nonNull(competitionDetailsDTO.getTeacherComments()) ? competitionDetailsDTO.getTeacherComments() : null)
                 .evaluatorId(Objects.nonNull(competitionDetailsDTO.getEvaluatorId()) ? competitionDetailsDTO.getEvaluatorId() : null)
-                .lastUpdatedBy(Objects.nonNull(competitionDetailsDTO.getLastUpdatedBy()) ? competitionDetailsDTO.getLastUpdatedBy(): null)
+                .lastUpdatedBy(Objects.nonNull(competitionDetailsDTO.getLastUpdatedBy()) ? competitionDetailsDTO.getLastUpdatedBy() : null)
                 .prize(prize)
                 .build();
 
@@ -289,7 +318,7 @@ public class CompetitionServiceImpl implements CompetitionService {
                 competitionDetailsEntity.setTeacherComments(competitionDetailsDTO.getTeacherComments());
             if (Objects.nonNull(competitionDetailsDTO.getStudentGrade()))
                 competitionDetailsEntity.setStudentGrade(competitionDetailsDTO.getStudentGrade());
-            if (Objects.nonNull(competitionDetailsDTO.getPrizeName())) {
+            if (Objects.nonNull(competitionDetailsDTO.getPrizeName()) && !competitionDetailsDTO.getPrizeName().isEmpty()) {
                 PrizeMasterDetailsEntity prizeMasterDetailsEntity = prizeMasterDetailsRepository.findByName(competitionDetailsDTO.getPrizeName());
                 if (Objects.isNull(prizeMasterDetailsEntity)) {
                     throw new DataAccessException("Enter valid prize details!");
@@ -297,11 +326,11 @@ public class CompetitionServiceImpl implements CompetitionService {
                 competitionDetailsEntity.setPrize(prizeMasterDetailsEntity);
             }
 
-            if(Objects.nonNull(competitionDetailsDTO.getEvaluatorId())){
+            if (Objects.nonNull(competitionDetailsDTO.getEvaluatorId())) {
                 competitionDetailsEntity.setEvaluatorId(competitionDetailsDTO.getEvaluatorId());
             }
 
-            if(Objects.nonNull(competitionDetailsDTO.getLastUpdatedBy())){
+            if (Objects.nonNull(competitionDetailsDTO.getLastUpdatedBy())) {
                 competitionDetailsEntity.setLastUpdatedBy(competitionDetailsDTO.getLastUpdatedBy());
             }
             return competitionDetailsRepository.save(competitionDetailsEntity);

@@ -13,7 +13,7 @@ import java.util.List;
 
 @Service
 public interface CompetitionService {
-    CompetitionResponseDTO getCompetition(Integer competitionId, String status, Integer userId);
+    CompetitionResponseDTO getCompetition(Integer competitionId, String status, Integer userId, String type);
 
     CompetitionMasterDetailsEntity createCompetition(CompetitionDetailsRequestDTO competition);
 
@@ -23,7 +23,7 @@ public interface CompetitionService {
 
     CompetitionDetailsEntity getCompetitionDetailsByCompetitionIdAndStudentId(Integer competitionId, Integer studentId);
 
-    List<CompetitionDetailsByIdResponseDTO> getCompetitionDetailsByCompetitionId(Integer competitionId);
+    List<CompetitionDetailsByIdResponseDTO> getCompetitionDetailsByCompetitionId(Integer competitionId, Integer teacherId, String type);
 
     CompetitionDetailsEntity createCompetitionDetails(CompetitionDetailsDTO competitionDetailsDTO);
 

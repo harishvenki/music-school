@@ -20,7 +20,7 @@ public class CreateUserRequestDTO {
     private String displayImage;
     private Character status;
     private String type;
-    private Integer batchId;
-    private Integer courseId;
+    private String batchId;
+    private String courseName;
     private String city;
 }

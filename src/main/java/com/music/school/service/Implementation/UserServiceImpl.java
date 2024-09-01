@@ -7,6 +7,7 @@ import com.music.school.request.CreateUserRequestDTO;
 import com.music.school.request.LoginRequestDTO;
 import com.music.school.request.ResetPasswordRequestDTO;
 import com.music.school.response.CreateUserResponseDTO;
+import com.music.school.response.GetStudentResponseDTO;
 import com.music.school.response.LoginResponseDTO;
 import com.music.school.service.UserService;
 import jakarta.transaction.Transactional;
@@ -15,9 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -73,13 +72,57 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public List<GetStudentResponseDTO> getAllStudents() {
+        List<UserMasterDetailsEntity> userMasterDetailsEntityList = userMasterDetailsRepository.findAllByType(Constants.STUDENT);
+        List<GetStudentResponseDTO> getStudentResponseDTOList = new ArrayList<>();
+        userMasterDetailsEntityList.forEach(userMasterDetailsEntity -> {
+            GetStudentResponseDTO getStudentResponseDTO = new GetStudentResponseDTO();
+            getStudentResponseDTO.setUserId(String.valueOf(userMasterDetailsEntity.getUserId()));
+            StudentMasterDetailsEntity studentMasterDetailsEntity = studentMasterDetailsRepository.findByUserId(userMasterDetailsEntity.getUserId());
+            getStudentResponseDTO.setUserName(userMasterDetailsEntity.getUserName());
+            getStudentResponseDTO.setStudentName(studentMasterDetailsEntity.getFirstName() + " " + studentMasterDetailsEntity.getLastName());
+            getStudentResponseDTO.setStudentEmail(studentMasterDetailsEntity.getEmail());
+            getStudentResponseDTO.setPhoneNumber(studentMasterDetailsEntity.getPhoneNumber());
+            getStudentResponseDTO.setCourseName(studentMasterDetailsEntity.getCourse().getName());
+            getStudentResponseDTO.setBatchId(studentMasterDetailsEntity.getBatch().getName());
+            getStudentResponseDTOList.add(getStudentResponseDTO);
+        });
+        return getStudentResponseDTOList;
+    }
+
+    @Override
+    public GetStudentResponseDTO getUserProfile(String userId, String type) {
+        GetStudentResponseDTO getStudentResponseDTO = new GetStudentResponseDTO();
+        if (type.equals(Constants.STUDENT)) {
+            StudentMasterDetailsEntity studentMasterDetailsEntity = studentMasterDetailsRepository.findByStudentId(Integer.valueOf(userId));
+            UserMasterDetailsEntity userMasterDetails = userMasterDetailsRepository.findByUserId(studentMasterDetailsEntity.getUserId());
+            getStudentResponseDTO.setUserName(userMasterDetails.getUserName());
+            getStudentResponseDTO.setStudentName(studentMasterDetailsEntity.getFirstName() + " " + studentMasterDetailsEntity.getLastName());
+            getStudentResponseDTO.setStudentEmail(studentMasterDetailsEntity.getEmail());
+            getStudentResponseDTO.setPhoneNumber(studentMasterDetailsEntity.getPhoneNumber());
+            getStudentResponseDTO.setCourseName(studentMasterDetailsEntity.getCourse().getName());
+            getStudentResponseDTO.setBatchId(studentMasterDetailsEntity.getBatch().getName());
+        } else if (type.equals(Constants.TEACHER)) {
+            TeacherMasterDetailsEntity teacherMasterDetails = teacherMasterDetailsRepository.findByTeacherId(Integer.valueOf(userId));
+            UserMasterDetailsEntity userMasterDetails = userMasterDetailsRepository.findByUserId(teacherMasterDetails.getUserId());
+            getStudentResponseDTO.setUserName(userMasterDetails.getUserName());
+            getStudentResponseDTO.setStudentName(teacherMasterDetails.getFirstName() + " " + teacherMasterDetails.getLastName());
+            getStudentResponseDTO.setStudentEmail(teacherMasterDetails.getEmail());
+            getStudentResponseDTO.setPhoneNumber(teacherMasterDetails.getPhoneNumber());
+            getStudentResponseDTO.setCourseName(teacherMasterDetails.getCourse().getName());
+            getStudentResponseDTO.setBatchId(teacherMasterDetails.getBatch().getName());
+        }
+        return getStudentResponseDTO;
+    }
+
+    @Override
     @Transactional
-    public CreateUserResponseDTO createUser(CreateUserRequestDTO createUserRequestDTO){
+    public CreateUserResponseDTO createUser(CreateUserRequestDTO createUserRequestDTO) {
         CreateUserResponseDTO createUserResponseDTO = new CreateUserResponseDTO();
         try {
-            UserMasterDetailsEntity userMasterDetailsEntityOld =  userMasterDetailsRepository.findByUserName(createUserRequestDTO.getUserName());
+            UserMasterDetailsEntity userMasterDetailsEntityOld = userMasterDetailsRepository.findByUserName(createUserRequestDTO.getUserName());
 
-            if(Objects.nonNull(userMasterDetailsEntityOld)){
+            if (Objects.nonNull(userMasterDetailsEntityOld)) {
                 createUserResponseDTO.setUserId(null);
                 createUserResponseDTO.setMessage("User already exists!");
                 return createUserResponseDTO;
@@ -96,14 +139,13 @@ public class UserServiceImpl implements UserService {
                 studentMasterDetailsEntity.setFirstName(createUserRequestDTO.getFirstName());
                 studentMasterDetailsEntity.setLastName(createUserRequestDTO.getLastName());
                 studentMasterDetailsEntity.setPhoneNumber(createUserRequestDTO.getPhoneNumber());
-                studentMasterDetailsEntity.setEmail(createUserRequestDTO.getEmail());
-                studentMasterDetailsEntity.setDisplayImage(createUserRequestDTO.getDisplayImage());
-                studentMasterDetailsEntity.setStatus(createUserRequestDTO.getStatus());
+                studentMasterDetailsEntity.setEmail(createUserRequestDTO.getEmail().toUpperCase());
+                studentMasterDetailsEntity.setStatus('A');
                 studentMasterDetailsEntity.setUserId(userMasterDetailsEntity.getUserId());
-                Optional<BatchMasterDetailsEntity> batchMasterDetailsEntity = batchMasterDetailsRepository.findById(createUserRequestDTO.getBatchId());
-                studentMasterDetailsEntity.setBatch(batchMasterDetailsEntity.get());
-                Optional<CourseMasterDetailsEntity> courseMasterDetailsEntity = courseMasterDetailsRepository.findById(createUserRequestDTO.getCourseId());
-                studentMasterDetailsEntity.setCourse(courseMasterDetailsEntity.get());
+                BatchMasterDetailsEntity batchMasterDetailsEntity = batchMasterDetailsRepository.findByName(createUserRequestDTO.getBatchId());
+                studentMasterDetailsEntity.setBatch(batchMasterDetailsEntity);
+                CourseMasterDetailsEntity courseMasterDetailsEntity = courseMasterDetailsRepository.findByName(createUserRequestDTO.getCourseName());
+                studentMasterDetailsEntity.setCourse(courseMasterDetailsEntity);
                 studentMasterDetailsEntity = studentMasterDetailsRepository.save(studentMasterDetailsEntity);
                 createUserResponseDTO.setStudentId(studentMasterDetailsEntity.getStudentId());
             } else if (userMasterDetailsEntity.getType().equalsIgnoreCase(Constants.TEACHER)) {
@@ -114,10 +156,10 @@ public class UserServiceImpl implements UserService {
                 teacherMasterDetailsEntity.setEmail(createUserRequestDTO.getEmail());
                 teacherMasterDetailsEntity.setDisplayImage(createUserRequestDTO.getDisplayImage());
                 teacherMasterDetailsEntity.setStatus(true);
-                Optional<BatchMasterDetailsEntity> batchMasterDetailsEntity = batchMasterDetailsRepository.findById(createUserRequestDTO.getBatchId());
-                teacherMasterDetailsEntity.setBatches(Collections.singletonList(batchMasterDetailsEntity.get()));
-                Optional<CourseMasterDetailsEntity> courseMasterDetailsEntity = courseMasterDetailsRepository.findById(createUserRequestDTO.getCourseId());
-                teacherMasterDetailsEntity.setCourse(courseMasterDetailsEntity.get());
+                BatchMasterDetailsEntity batchMasterDetailsEntity = batchMasterDetailsRepository.findByName(createUserRequestDTO.getBatchId());
+                teacherMasterDetailsEntity.setBatches(Collections.singletonList(batchMasterDetailsEntity));
+                CourseMasterDetailsEntity courseMasterDetailsEntity = courseMasterDetailsRepository.findByName(createUserRequestDTO.getCourseName());
+                teacherMasterDetailsEntity.setCourse(courseMasterDetailsEntity);
                 teacherMasterDetailsEntity.setUserId(userMasterDetailsEntity.getUserId());
                 teacherMasterDetailsEntity.setCity(createUserRequestDTO.getCity());
                 teacherMasterDetailsEntity = teacherMasterDetailsRepository.save(teacherMasterDetailsEntity);
@@ -137,7 +179,7 @@ public class UserServiceImpl implements UserService {
             }
             createUserResponseDTO.setMessage("User created!");
             return createUserResponseDTO;
-        } catch (Exception e){
+        } catch (Exception e) {
             createUserResponseDTO.setUserId(null);
             createUserResponseDTO.setMessage("User creation failed!");
             logger.error("Exception occurred while creating user {}", e.getMessage());
@@ -146,12 +188,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public CreateUserResponseDTO reset(ResetPasswordRequestDTO resetPasswordRequestDTO){
+    public CreateUserResponseDTO reset(ResetPasswordRequestDTO resetPasswordRequestDTO) {
         CreateUserResponseDTO createUserResponseDTO = new CreateUserResponseDTO();
         try {
             UserMasterDetailsEntity userMasterDetailsEntity = userMasterDetailsRepository.findByUserName(resetPasswordRequestDTO.getUserName());
-            if(Objects.nonNull(userMasterDetailsEntity)){
-                if(userMasterDetailsEntity.getPassword().equals(resetPasswordRequestDTO.getOldPassword())){
+            if (Objects.nonNull(userMasterDetailsEntity)) {
+                if (userMasterDetailsEntity.getPassword().equals(resetPasswordRequestDTO.getOldPassword())) {
                     createUserResponseDTO.setUserId(userMasterDetailsEntity.getUserId());
                     userMasterDetailsEntity.setPassword(resetPasswordRequestDTO.getNewPassword());
                     userMasterDetailsRepository.save(userMasterDetailsEntity);
@@ -162,7 +204,7 @@ public class UserServiceImpl implements UserService {
             } else {
                 createUserResponseDTO.setMessage("Incorrect username/password!");
             }
-        } catch (Exception e){
+        } catch (Exception e) {
             createUserResponseDTO.setUserId(null);
             createUserResponseDTO.setMessage("Failed to update password!");
             logger.error("Exception occurred while creating user {}", e.getMessage());

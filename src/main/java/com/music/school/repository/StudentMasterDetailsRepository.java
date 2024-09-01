@@ -13,6 +13,10 @@ public interface StudentMasterDetailsRepository extends CrudRepository<StudentMa
 
     StudentMasterDetailsEntity findByUserId(@Param("userId") Integer userId);
 
+    StudentMasterDetailsEntity findByStudentId(@Param("studentId") Integer studentId);
+
     List<StudentMasterDetailsEntity> findAllByStatus(Character status);
+
+    List<StudentMasterDetailsEntity> findAllByBatch_BatchId(Integer batchId);
 
 }

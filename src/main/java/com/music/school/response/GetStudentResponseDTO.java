@@ -9,10 +9,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class CreateUserResponseDTO {
-    Integer userId;
-    Integer studentId;
-    Integer teacherId;
-    Integer adminId;
-    String message;
+public class GetStudentResponseDTO {
+    String userId;
+    String batchId;
+    String userName;
+    String studentName;
+    String studentEmail;
+    String phoneNumber;
+    String teacherName;
+    String courseName;
 }

@@ -29,8 +29,8 @@ public class CompetitionController {
     CompetitionService competitionService;
 
     @GetMapping
-    ResponseEntity<CompetitionResponseDTO> getCompetitions(@RequestParam(name = "competitionId", required = false) Integer competitionId, @RequestParam(name = "status") String status, @RequestParam(name = "userId", required = false) Integer userId) {
-        return ResponseEntity.ok(competitionService.getCompetition(competitionId, status, userId));
+    ResponseEntity<CompetitionResponseDTO> getCompetitions(@RequestParam(name = "competitionId", required = false) Integer competitionId, @RequestParam(name = "status") String status, @RequestParam(name = "userId", required = false) Integer userId, @RequestParam(name = "type", required = false) String type) {
+        return ResponseEntity.ok(competitionService.getCompetition(competitionId, status, userId, type));
     }
 
     @PostMapping
@@ -76,9 +76,9 @@ public class CompetitionController {
     }
 
     @GetMapping("/details/{competitionId}")
-    public ResponseEntity<?> getCompetitionDetailsByCompetitionId(@PathVariable Integer competitionId) {
+    public ResponseEntity<?> getCompetitionDetailsByCompetitionId(@PathVariable Integer competitionId, @RequestParam(name = "teacherId", required = false) Integer teacherId, @RequestParam(name = "type", required = false) String type) {
         try {
-            List<CompetitionDetailsByIdResponseDTO> competitionDetailsEntityList = competitionService.getCompetitionDetailsByCompetitionId(competitionId);
+            List<CompetitionDetailsByIdResponseDTO> competitionDetailsEntityList = competitionService.getCompetitionDetailsByCompetitionId(competitionId, teacherId, type);
             return ResponseEntity.status(HttpStatus.OK).body(competitionDetailsEntityList);
         } catch (ResourceNotFoundException e) {
             logger.error("ResourceNotFoundException occurred while storing competition details, {}", e.getMessage(), e);
