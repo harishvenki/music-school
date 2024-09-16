@@ -288,7 +288,11 @@ public class CompetitionServiceImpl implements CompetitionService {
         Optional<CompetitionDetailsEntity> competitionDetailsEntityOptional = competitionDetailsRepository.findByCompetition_CompetitionIdAndStudent_StudentId(competition.getCompetitionId(), competitionDetailsDTO.getStudentId());
 
         if (competitionDetailsEntityOptional.isPresent()) {
-            throw new DataAccessException("Competition already registered for the given student");
+            CompetitionDetailsEntity competitionDetailsEntity = competitionDetailsEntityOptional.get();
+            competitionDetailsEntity.setStudentFile(competitionDetailsDTO.getStudentFile());
+            competitionDetailsEntity.setStudentComments(competitionDetailsDTO.getStudentComments());
+            competitionDetailsEntity.setSubmissionDate(new Date());
+            return competitionDetailsRepository.save(competitionDetailsEntity);
         }
 
         CompetitionDetailsEntity competitionDetailsEntity = CompetitionDetailsEntity.builder()
